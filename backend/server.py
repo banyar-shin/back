@@ -23,5 +23,5 @@ async def root():
 if __name__ == "__main__":
     # Enable hot reload
     uvicorn.run(
-        "server:app", host="0.0.0.0", port=5000, reload=True, reload_dirs=["./"]
+        "server:app", host="127.0.0.1", port=5000, reload=True, reload_dirs=["./"]
     )
