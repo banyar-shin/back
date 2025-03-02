@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Forward the request to the backend server
-    const response = await fetch(`http://localhost:5000/tasks/?user_id=${encodeURIComponent(user_id)}`, {
+    const response = await fetch(`https://back-6bl4.onrender.com/tasks/?user_id=${encodeURIComponent(user_id)}`, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',

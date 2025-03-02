@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
 
     // Forward the request to the backend server
-    const response = await fetch('http://localhost:5000/chat/', {
+    const response = await fetch('https://back-6bl4.onrender.com/chat/', {
       method: 'POST',
       body: formData,
     });

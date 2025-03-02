@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     console.log(`Marking task ${task_id} as complete for user ${user_id}`);
 
     // Forward the request to the backend server
-    const response = await fetch('http://localhost:5000/tasks/complete/', {
+    const response = await fetch('https://back-6bl4.onrender.com/tasks/complete/', {
       method: 'POST',
       body: formData,
     });
