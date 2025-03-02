@@ -161,6 +161,5 @@ if __name__ == "__main__":
         "server:app", 
         host="0.0.0.0",
         port=port,
-        reload=is_dev,  # Only use hot reload in development
-        reload_dirs=["./"] if is_dev else None
+        reload=False  # Only use hot reload in development
     )
