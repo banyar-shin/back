@@ -1,5 +1,6 @@
 import os
 from groq import Groq
+from system_prompt import system_prompt
 
 def genJSON(task: str):
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -14,7 +15,7 @@ def genJSON(task: str):
             # how it should behave throughout the conversation.
             {
                 "role": "system",
-                "content": "Take the user input and format a structured plan to complete their task in time for their due date. Structure it in a .json format detailing what should be done on what day and only return this .json content"
+                "content": system_prompt,
             },
             # Set a user message for the assistant to respond to.
             {
