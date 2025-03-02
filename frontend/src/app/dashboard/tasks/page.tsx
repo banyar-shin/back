@@ -109,11 +109,36 @@ const getCategoryVariant = (category: string) => {
 // Function to parse the date format coming from the backend
 const parseDate = (dateString: string) => {
   try {
-    // Handle case where date might be null or undefined
-    if (!dateString) return new Date();
+    // Handle case where date might be null, undefined, or "None" (from Python)
+    if (!dateString || dateString === "None" || dateString === "null") {
+      console.log('Received empty date value:', dateString);
+      return new Date();
+    }
 
-    // Input format: "2025-03-04 14:35"
-    return new Date(dateString.replace(' ', 'T'));
+    // Check if the date is already a valid ISO string
+    if (dateString.includes('T') && !isNaN(Date.parse(dateString))) {
+      return parseISO(dateString);
+    }
+
+    // Check if it's a simple date string (YYYY-MM-DD)
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+      return parseISO(dateString);
+    }
+
+    // Handle format: "2025-03-04 14:35"
+    if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(dateString)) {
+      return new Date(dateString.replace(' ', 'T'));
+    }
+
+    // Try direct parsing as a fallback
+    const directParse = new Date(dateString);
+    if (!isNaN(directParse.getTime())) {
+      return directParse;
+    }
+
+    // If all else fails, return current date
+    console.error('Could not parse date format:', dateString);
+    return new Date();
   } catch (error) {
     console.error('Error parsing date:', dateString, error);
     return new Date(); // Return current date as fallback
