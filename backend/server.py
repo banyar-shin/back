@@ -6,6 +6,8 @@ from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import speechGroq
+from groqAI import genJSON
+
 load_dotenv()
 app = FastAPI()
 import os 
@@ -33,16 +35,24 @@ async def transcript(user_id: str = Form(...), file: UploadFile = File(...)):
     filed = f"temp_{file.filename}"
     with open(filed, "wb") as buffer:
         buffer.write(await file.read())
-        #Call transcribe_audio function from speechGroq
-        transcription_text = speechGroq.transcribe_audio(filed)
-        #Delete temporary file
-        os.remove(filed)
-        #Return text file features 
-        return {
-            "user_id": user_id,
-            "filename": file.filename,
-            "transcription": transcription_text
-        }
+
+    #Call transcribe_audio function from speechGroq
+    transcription_text = speechGroq.transcribe_audio(filed)
+    #Delete temporary file
+    os.remove(filed)
+
+    # teststring = genJSON(transcription_text)
+    file2 = f"json_{file.filename}"
+    with open(file2, "wb") as buffer:
+        for i in genJSON(transcription_text):
+            buffer.write(i.encode('utf-8'))
+
+    #Return text file features 
+    return {
+        "user_id": user_id,
+        "filename": file.filename,
+        "transcription": transcription_text
+    }
     #Use the text and Kyle's function (Turn text into a structured data, put that in Database)
 
 @app.get("/chat")
