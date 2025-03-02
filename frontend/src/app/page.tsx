@@ -6,24 +6,6 @@ import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@cl
 
 import { Button } from "@/components/ui/button";
 
-// Define common appearance settings for Clerk modals
-const clerkAppearance = {
-  elements: {
-    rootBox: {
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    card: {
-      boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)',
-      margin: '0 auto',
-    },
-    modalBackdrop: {
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    }
-  },
-};
-
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
@@ -36,12 +18,12 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <SignedOut>
             <div className="flex items-center gap-2">
-              <SignInButton mode="modal" appearance={clerkAppearance}>
+              <SignInButton mode="modal" fallbackRedirectUrl="/dashboard">
                 <Button variant="ghost" size="sm">
                   Sign In
                 </Button>
               </SignInButton>
-              <SignUpButton mode="modal" appearance={clerkAppearance}>
+              <SignUpButton mode="modal">
                 <Button size="sm">
                   Get Started
                 </Button>
@@ -51,10 +33,10 @@ export default function Home() {
           <SignedIn>
             <Link href="/dashboard">
               <Button variant="ghost" size="sm" className="mr-2">
-                Dashboard
+                Welcome!
               </Button>
             </Link>
-            <UserButton />
+            <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </div>
       </header>
@@ -74,7 +56,7 @@ export default function Home() {
               </div>
               <div className="flex flex-col gap-2 min-[400px]:flex-row">
                 <SignedOut>
-                  <SignUpButton mode="modal" appearance={clerkAppearance}>
+                  <SignUpButton mode="modal">
                     <Button size="lg" className="w-full md:w-auto">
                       Get Started <ArrowRight className="ml-2 h-4 w-4" />
                     </Button>
@@ -144,7 +126,7 @@ export default function Home() {
             </div>
             <div className="mx-auto w-full max-w-sm space-y-2">
               <SignedOut>
-                <SignUpButton mode="modal" appearance={clerkAppearance}>
+                <SignUpButton mode="modal">
                   <Button size="lg" className="w-full">
                     Start Your Journey
                   </Button>

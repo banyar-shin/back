@@ -9,21 +9,23 @@ from pydantic import BaseModel
 import speechGroq
 from groqAI import genJSON, generate_reply
 from jsonDB import jsonToDB, dbToJSON
-import json 
+import json
+import os
+import asyncio
+
 load_dotenv()
 app = FastAPI()
-import os 
 
-
-# Add CORS middleware
+# Enable CORS for all routes and origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
-    allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=False,  # Must be False for wildcard origins
+    allow_methods=["*"],  # Allow all methods
+    allow_headers=["*"],  # Allow all headers
+    expose_headers=["*"],  # Expose all headers
+    max_age=86400,  # Cache preflight requests for 24 hours
 )
-
 
 @app.get("/")
 async def root():
@@ -57,7 +59,7 @@ async def transcript(user_id: str = Form(...), file: UploadFile = File(...)):
     }
     
 
-@app.get("/audio/")
+@app.post("/audio/")
 async def fromAudioToText(user_id:str = Form(...), file: UploadFile = File(...)):
     #Save the audio file
     delFiled = f"temp_{file.filename}"
@@ -78,15 +80,21 @@ async def fromAudioToText(user_id:str = Form(...), file: UploadFile = File(...))
     response_stream = generate_reply(jsonData)
     return StreamingResponse(response_stream, media_type="text/plain")
 
-@app.get("/chat/")
+@app.post("/chat/")
 async def chat(user_id:str = Form(...), user_input: str = Form(...)):
     jsonData = genJSON(user_input)
-    extractedJSON = dbToJSON(user_id)
+    asyncio.run(jsonToDB(jsonData, user_id))
 
     response_stream = generate_reply(jsonData)
     return StreamingResponse(response_stream, media_type="text/plain")
     #return StreamingResponse(groqAI.genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week."))
 
+@app.get("/tasks/")
+async def tasks(user_id: str):
+    jsonDict = dbToJSON(user_id)
+    jsonData = json.dumps(jsonDict)
+
+    return jsonData
 
 @app.get("/test/")
 async def test():
@@ -121,7 +129,11 @@ async def test():
 # }"""))
 
 if __name__ == "__main__":
-    # Enable hot reload
+    # Enable hot reload and bind to all interfaces (0.0.0.0)
     uvicorn.run(
-        "server:app", host="127.0.0.1", port=5000, reload=True, reload_dirs=["./"]
+        "server:app", 
+        host="0.0.0.0",  # Changed from 127.0.0.1 to allow external connections
+        port=5000, 
+        reload=True, 
+        reload_dirs=["./"]
     )

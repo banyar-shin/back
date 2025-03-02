@@ -30,12 +30,9 @@ async def jsonToDB(jsonObj: dict, userID: str):
     collection.insert_many(data_list)
     print("Data inserted succesfully")
 
-    # Closing database
-    client.close()
-
 
 # Data Base to JSON Async Function
-async def dbToJSON(userID: str):
+def dbToJSON(userID: str):
     # Initialize the database
     db = client["UserData"]
     # Select the collection
@@ -63,9 +60,6 @@ async def dbToJSON(userID: str):
     # Print the result
     print(jsonObj)
 
-    # Closing database
-    client.close()
-
     print("Data extracted succesfully")
 
     # Return the JSON object
@@ -73,22 +67,22 @@ async def dbToJSON(userID: str):
 
 #====================================================================================================
 # Taking user input
-decision = input("Do you want to perform JSON to Data Base (1) or Extract Data from Data Base (2): ")
-if decision == "1":
-    # Opening and loading file to be put into the database
-    with open("sample.json", "r") as file:
-        tempObj = json.load(file)
-    # Getting the userID
-    userIDString = input("Enter the userID to save data in: ")
-    # Running the jsonToDB function
-    asyncio.run(jsonToDB(tempObj, userIDString))
-elif decision == "2":
-    # Getting the userID
-    userIDString = input("Enter the userID to extract data from: ")
-    # Running the dbToJSON function
-    extractedJSON = asyncio.run(dbToJSON(userIDString))
-    # Writing the extracted JSON to a file
-    with open("extracted.json", "w") as file:
-        json.dump(extractedJSON, file, indent=4)
-else:
-    print("Invalid input")
+# decision = input("Do you want to perform JSON to Data Base (1) or Extract Data from Data Base (2): ")
+# if decision == "1":
+#     # Opening and loading file to be put into the database
+#     with open("sample.json", "r") as file:
+#         tempObj = json.load(file)
+#     # Getting the userID
+#     userIDString = input("Enter the userID to save data in: ")
+#     # Running the jsonToDB function
+#     asyncio.run(jsonToDB(tempObj, userIDString))
+# elif decision == "2":
+#     # Getting the userID
+#     userIDString = input("Enter the userID to extract data from: ")
+#     # Running the dbToJSON function
+#     extractedJSON = asyncio.run(dbToJSON(userIDString))
+#     # Writing the extracted JSON to a file
+#     with open("extracted.json", "w") as file:
+#         json.dump(extractedJSON, file, indent=4)
+# else:
+#     print("Invalid input")
