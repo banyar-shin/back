@@ -1,14 +1,16 @@
 import uvicorn
 import groqAI
+import os
+import speechGroq
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
-import speechGroq
+
 load_dotenv()
 app = FastAPI()
-import os 
+
 
 
 # Add CORS middleware
@@ -37,7 +39,7 @@ async def transcript(user_id: str = Form(...), file: UploadFile = File(...)):
         transcription_text = speechGroq.transcribe_audio(filed)
         #Delete temporary file
         os.remove(filed)
-        #Return text file features 
+        #Return text file features
         return {
             "user_id": user_id,
             "filename": file.filename,
