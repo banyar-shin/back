@@ -6,7 +6,7 @@ from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import speechGroq
-from groqAI import genJSON
+from groqAI import genJSON, generate_reply#, add_to_database 
 
 load_dotenv()
 app = FastAPI()
@@ -53,11 +53,66 @@ async def transcript(user_id: str = Form(...), file: UploadFile = File(...)):
         "filename": file.filename,
         "transcription": transcription_text
     }
-    #Use the text and Kyle's function (Turn text into a structured data, put that in Database)
+    
 
-@app.get("/chat")
-async def root():
-    return StreamingResponse(groqAI.genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week."))
+@app.get("/audio/")
+async def fromAudioToText(user_id:str = Form(...), file: UploadFile = File(...)):
+    #Save the audio file
+    delFiled = f"temp_{file.filename}"
+    with open(delFiled, "wb") as buffer:
+        buffer.write(await file.read())
+    #Transcribe the audio to text
+    transcription_text = speechGroq.transcribe_audio(delFiled)
+    #Delete temp file 
+    os.remove(delFiled)
+    #Generate json from transcription_text
+    jsonData = genJSON(transcription_text)
+    #Store transcription_text and JSON data into MongoDB
+    # add_to_database(user_id, jsonData)
+    #Generates response based on json_data
+    response_stream = generate_reply(jsonData)
+    return StreamingResponse(response_stream, media_type="text/plain")
+
+@app.get("/chat/")
+async def chat(user_id:str = Form(...), user_input: str = Form(...)):
+    jsonData = genJSON(user_input)
+    # add_to_database(user_id, jsonData)
+
+    response_stream = generate_reply(jsonData)
+    return StreamingResponse(response_stream, media_type="text/plain")
+    #return StreamingResponse(groqAI.genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week."))
+
+
+@app.get("/test/")
+async def test():
+    return StreamingResponse(generate_reply("""{
+  "tasks": [
+    {
+      "timestamp": "2025-03-02 14:35",
+      "description": "CS-122 Homework `",
+      "priority": "High",
+      "category": "School",
+      "due_date": "2025-03-03 14:35",
+      "status": "Incomplete"
+    },
+    {
+      "timestamp": "2025-03-02 14:35",
+      "description": "CS-122 Homework 1",
+      "priority": "High",
+      "category": "School",
+      "due_date": "2025-03-04 14:35",
+      "status": "Incomplete"
+    },
+    {
+      "timestamp": "2025-03-02 14:35",
+      "description": "CS-122 Homework 2",
+      "priority": "High",
+      "category": "School",
+      "due_date": "2025-03-05 14:35",
+      "status": "Incomplete"
+    }
+  ]
+}"""))
 
 if __name__ == "__main__":
     # Enable hot reload
