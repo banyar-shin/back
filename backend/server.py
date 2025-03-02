@@ -1,5 +1,6 @@
 import uvicorn
 import groqAI
+import json
 from fastapi import FastAPI, Request, Form, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -85,34 +86,35 @@ async def chat(user_id:str = Form(...), user_input: str = Form(...)):
 
 @app.get("/test/")
 async def test():
-    return StreamingResponse(generate_reply("""{
-  "tasks": [
-    {
-      "timestamp": "2025-03-02 14:35",
-      "description": "CS-122 Homework `",
-      "priority": "High",
-      "category": "School",
-      "due_date": "2025-03-03 14:35",
-      "status": "Incomplete"
-    },
-    {
-      "timestamp": "2025-03-02 14:35",
-      "description": "CS-122 Homework 1",
-      "priority": "High",
-      "category": "School",
-      "due_date": "2025-03-04 14:35",
-      "status": "Incomplete"
-    },
-    {
-      "timestamp": "2025-03-02 14:35",
-      "description": "CS-122 Homework 2",
-      "priority": "High",
-      "category": "School",
-      "due_date": "2025-03-05 14:35",
-      "status": "Incomplete"
-    }
-  ]
-}"""))
+    return StreamingResponse(groqAI.genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week."))
+    # return StreamingResponse(generate_reply("""{
+#   "tasks": [
+#     {
+#       "timestamp": "2025-03-02 14:35",
+#       "description": "CS-122 Homework `",
+#       "priority": "High",
+#       "category": "School",
+#       "due_date": "2025-03-03 14:35",
+#       "status": "Incomplete"
+#     },
+#     {
+#       "timestamp": "2025-03-02 14:35",
+#       "description": "CS-122 Homework 1",
+#       "priority": "High",
+#       "category": "School",
+#       "due_date": "2025-03-04 14:35",
+#       "status": "Incomplete"
+#     },
+#     {
+#       "timestamp": "2025-03-02 14:35",
+#       "description": "CS-122 Homework 2",
+#       "priority": "High",
+#       "category": "School",
+#       "due_date": "2025-03-05 14:35",
+#       "status": "Incomplete"
+#     }
+#   ]
+# }"""))
 
 if __name__ == "__main__":
     # Enable hot reload

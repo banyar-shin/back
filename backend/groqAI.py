@@ -1,4 +1,5 @@
 import os
+import json
 from groq import Groq
 from system_prompt import system_prompt
 
@@ -58,6 +59,10 @@ def genJSON(task: str):
     result = ""
     for chunk in stream:
         result += chunk.choices[0].delta.content or ""
+
+    data = json.loads(result)
+    with open("tasks.json", "w") as file:
+        json.dump(data, file, indent=4)
     return result
 
 
