@@ -19,12 +19,10 @@ app = FastAPI()
 # Enable CORS for all routes and origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins
-    allow_credentials=False,  # Must be False for wildcard origins
-    allow_methods=["*"],  # Allow all methods
+    allow_origins=["http://localhost:3000"],  # Allow requests from React frontend
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods (GET, POST, etc.)
     allow_headers=["*"],  # Allow all headers
-    expose_headers=["*"],  # Expose all headers
-    max_age=86400,  # Cache preflight requests for 24 hours
 )
 
 @app.get("/")
@@ -71,21 +69,18 @@ async def fromAudioToText(user_id:str = Form(...), file: UploadFile = File(...))
     os.remove(delFiled)
     #Generate json from transcription_text
     jsonData = genJSON(transcription_text)
-    tempJSONObj: dict 
-    with open(jsonData, "r") as file:
-        tempJSONObj = json.load(file)
     #Store transcription_text and JSON data into MongoDB
-    jsonToDB(tempJSONObj, user_id)
+    jsonToDB(jsonData, user_id)
     #Generates response based on json_data
-    response_stream = generate_reply(jsonData)
+    response_stream = generate_reply(json.dumps(jsonData))
     return StreamingResponse(response_stream, media_type="text/plain")
 
 @app.post("/chat/")
 async def chat(user_id:str = Form(...), user_input: str = Form(...)):
     jsonData = genJSON(user_input)
-    asyncio.run(jsonToDB(jsonData, user_id))
+    jsonToDB(jsonData, user_id)
 
-    response_stream = generate_reply(jsonData)
+    response_stream = generate_reply(json.dumps(jsonData))
     return StreamingResponse(response_stream, media_type="text/plain")
     #return StreamingResponse(groqAI.genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week."))
 
@@ -98,7 +93,8 @@ async def tasks(user_id: str):
 
 @app.get("/test/")
 async def test():
-    return StreamingResponse(groqAI.genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week."))
+    jsonData = genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week.")
+    return StreamingResponse(generate_reply(json.dumps(jsonData)), media_type="text/plain")
     # return StreamingResponse(generate_reply("""{
 #   "tasks": [
 #     {

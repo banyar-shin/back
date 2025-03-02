@@ -2,10 +2,10 @@
     "tasks": [
         {
             "timestamp": "2025-03-02 14:35",
-            "description": "Chatbot Project",
+            "description": "CS 171 Assignment",
             "priority": "High",
             "category": "School",
-            "due_date": "2025-03-07 23:59",
+            "due_date": "2025-03-04 21:00",
             "status": "Incomplete"
         }
     ]

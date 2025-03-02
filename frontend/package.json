@@ -11,6 +11,7 @@
     "format:check": "prettier --check .",
     "prepare": "husky"
   },
+  "proxy": "http://localhost:5000",
   "lint-staged": {
     "*.{js,ts,jsx,tsx}": [
       "eslint --fix"

@@ -3,7 +3,7 @@ import json
 import asyncio
 
 # JSON to Data Base Async Function
-async def jsonToDB(jsonObj: dict, userID: str):
+def jsonToDB(jsonObj: dict, userID: str):
     # Initialize the database
     db = client["UserData"]
     # Select the collection
@@ -20,7 +20,7 @@ async def jsonToDB(jsonObj: dict, userID: str):
             "status": task["status"]
         }
         # Loop through the tasks in the JSON object
-        for index, task in enumerate(jsonObj["tasks"])
+        for task in jsonObj["tasks"]
     ]
 
     # Print the result

@@ -52,18 +52,21 @@ def genJSON(task: str):
         stop=None,
 
         # If set, partial message deltas will be sent.
-        stream=True,
+        stream=False,
     )
 
-    # Print the incremental deltas returned by the LLM.
-    result = ""
-    for chunk in stream:
-        result += chunk.choices[0].delta.content or ""
-
-    data = json.loads(result)
+    # Get the content from the ChatCompletion object
+    response_content = stream.choices[0].message.content
+    
+    # Parse the JSON string into a Python dictionary
+    data = json.loads(response_content)
+    
+    # Save to file (keeping this functionality)
     with open("tasks.json", "w") as file:
         json.dump(data, file, indent=4)
-    return result
+    
+    # Return the dictionary instead of the string
+    return data
 
 
 def generate_reply(jsonData: str):
