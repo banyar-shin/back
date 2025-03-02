@@ -10,6 +10,7 @@ import { useUser } from '@clerk/clerk-react';
 
 // Define the Task interface
 interface Task {
+  _id: string; // MongoDB ObjectId as string
   timestamp: string;
   description: string;
   priority: "High" | "Medium" | "Low";
@@ -21,6 +22,7 @@ interface Task {
 // Dummy data for tasks
 const dummyTasks: Task[] = [
   {
+    _id: "60d21b4667d0d8992e610c85",
     timestamp: "2025-03-02 14:35",
     description: "CS-122 Homework 5",
     priority: "High",
@@ -29,6 +31,7 @@ const dummyTasks: Task[] = [
     status: "Incomplete"
   },
   {
+    _id: "60d21b4667d0d8992e610c86",
     timestamp: "2025-03-01 09:15",
     description: "Call with client",
     priority: "Medium",
@@ -37,6 +40,7 @@ const dummyTasks: Task[] = [
     status: "Incomplete"
   },
   {
+    _id: "60d21b4667d0d8992e610c87",
     timestamp: "2025-02-28 18:30",
     description: "Grocery shopping",
     priority: "Low",
@@ -45,6 +49,7 @@ const dummyTasks: Task[] = [
     status: "Complete"
   },
   {
+    _id: "60d21b4667d0d8992e610c88",
     timestamp: "2025-03-01 12:00",
     description: "Prepare presentation",
     priority: "High",
@@ -53,6 +58,7 @@ const dummyTasks: Task[] = [
     status: "Incomplete"
   },
   {
+    _id: "60d21b4667d0d8992e610c89",
     timestamp: "2025-02-27 14:20",
     description: "Dentist appointment",
     priority: "Medium",
@@ -110,6 +116,8 @@ export default function TasksPage() {
   const { user, isLoaded } = useUser();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
+  const [hideCompleted, setHideCompleted] = useState(false);
 
   useEffect(() => {
     // Only fetch tasks when user is loaded
@@ -131,13 +139,12 @@ export default function TasksPage() {
 
       console.log('Fetching tasks for user:', user.id);
 
-      // Updated fetch request with explicit CORS handling
-      const response = await fetch(`http://localhost:5000/tasks/?user_id=${encodeURIComponent(user.id)}`, {
+      // Use the Next.js API route
+      const response = await fetch(`/api/tasks?user_id=${encodeURIComponent(user.id)}`, {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
         },
-        mode: 'cors',
       });
 
       console.log('Response status:', response.status);
@@ -226,22 +233,53 @@ export default function TasksPage() {
   }
 
   // Function to mark a task as complete
-  const markAsComplete = (index: number) => {
-    const updatedTasks = [...tasks];
-    updatedTasks[index] = { ...updatedTasks[index], status: "Complete" };
-    setTasks(updatedTasks);
+  const markAsComplete = async (task: Task) => {
+    try {
+      // Set the completing task ID to show loading state
+      setCompletingTaskId(task._id);
+
+      // Create form data for the request
+      const formData = new FormData();
+      formData.append('user_id', user?.id || '');
+      formData.append('task_id', task._id);
+
+      // Call the Next.js API route
+      const response = await fetch('/api/tasks/complete', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to mark task as complete: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
+        // Update the local state
+        const updatedTasks = [...tasks];
+        const taskIndex = findTaskIndex(task);
+        if (taskIndex !== -1) {
+          updatedTasks[taskIndex] = { ...updatedTasks[taskIndex], status: "Complete" };
+          setTasks(updatedTasks);
+        }
+      } else {
+        console.error('Error marking task as complete:', result.message);
+      }
+    } catch (error) {
+      console.error('Error marking task as complete:', error);
+    } finally {
+      // Clear the completing task ID
+      setCompletingTaskId(null);
+    }
   };
 
   // Function to find task index by matching properties
   const findTaskIndex = (task: Task) => {
-    return tasks.findIndex(t =>
-      t.description === task.description &&
-      t.timestamp === task.timestamp &&
-      t.due_date === task.due_date
-    );
+    return tasks.findIndex(t => t._id === task._id);
   };
 
-  // Sort tasks by due date (closest first) and incomplete status
+  // Sort tasks by status (incomplete first) and then by due date
   const sortedTasks = [...tasks].sort((a, b) => {
     // First sort by status (incomplete first)
     if (a.status === "Incomplete" && b.status === "Complete") return -1;
@@ -251,11 +289,23 @@ export default function TasksPage() {
     return parseDate(a.due_date).getTime() - parseDate(b.due_date).getTime();
   });
 
+  // Filter out completed tasks if hideCompleted is true
+  const filteredTasks = hideCompleted
+    ? sortedTasks.filter(task => task.status === "Incomplete")
+    : sortedTasks;
+
   // Group tasks by due date
   const groupedTasks: Record<string, Task[]> = {};
+  const completedTasks: Task[] = [];
 
-  sortedTasks.forEach(task => {
-    // Format the date to just show YYYY-MM-DD for grouping
+  filteredTasks.forEach(task => {
+    // If task is complete and we're showing completed tasks, add to completed section
+    if (task.status === "Complete") {
+      completedTasks.push(task);
+      return;
+    }
+
+    // Otherwise group by due date as before
     const dueDate = format(parseDate(task.due_date), 'yyyy-MM-dd');
     if (!groupedTasks[dueDate]) {
       groupedTasks[dueDate] = [];
@@ -277,7 +327,18 @@ export default function TasksPage() {
             Tasks
           </h2>
         </div>
-        <Button>Add New Task</Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setHideCompleted(!hideCompleted)}
+          >
+            {hideCompleted ? 'Show Completed' : 'Hide Completed'}
+          </Button>
+          <Button variant="outline" onClick={fetchTasks} disabled={loading}>
+            {loading ? 'Refreshing...' : 'Refresh'}
+          </Button>
+          <Button>Add New Task</Button>
+        </div>
       </div>
 
       <div className="space-y-8">
@@ -289,8 +350,8 @@ export default function TasksPage() {
             </h3>
 
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {groupedTasks[dateKey].map((task, index) => (
-                <Card key={`${task.description}-${index}`} className={`${task.status === "Complete" ? "opacity-60" : ""}`}>
+              {groupedTasks[dateKey].map((task) => (
+                <Card key={task._id} className={`${task.status === "Complete" ? "opacity-60" : ""}`}>
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">
                       <CardTitle className="text-lg">{task.description}</CardTitle>
@@ -330,9 +391,10 @@ export default function TasksPage() {
                           size="sm"
                           variant="outline"
                           className="ml-auto"
-                          onClick={() => markAsComplete(findTaskIndex(task))}
+                          onClick={() => markAsComplete(task)}
+                          disabled={completingTaskId === task._id}
                         >
-                          Mark Done
+                          {completingTaskId === task._id ? "Marking Done..." : "Mark Done"}
                         </Button>
                       )}
                     </div>
@@ -342,6 +404,53 @@ export default function TasksPage() {
             </div>
           </div>
         ))}
+
+        {/* Completed Tasks Section */}
+        {!hideCompleted && completedTasks.length > 0 && (
+          <div className="space-y-4 mt-8 border-t pt-8">
+            <h3 className="text-xl font-semibold flex items-center gap-2">
+              <CheckCircle className="h-5 w-5" />
+              Completed Tasks
+            </h3>
+
+            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {completedTasks.map((task) => (
+                <Card key={task._id} className="opacity-60 bg-muted/30">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-start">
+                      <CardTitle className="text-lg">{task.description}</CardTitle>
+                      <Badge className={`${getPriorityColor(task.priority)} text-white`}>
+                        {task.priority}
+                      </Badge>
+                    </div>
+                    <CardDescription>
+                      Created: {format(parseDate(task.timestamp), 'MMM d, yyyy h:mm a')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <Badge variant={getCategoryVariant(task.category) as any}>
+                        {task.category}
+                      </Badge>
+                      <div className="flex items-center text-sm">
+                        <span className="flex items-center text-green-600">
+                          <CheckCircle className="h-4 w-4 mr-1" /> Complete
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                  <CardFooter className="pt-2">
+                    <div className="w-full flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">
+                        Due: {format(parseDate(task.due_date), 'MMM d, yyyy h:mm a')}
+                      </span>
+                    </div>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

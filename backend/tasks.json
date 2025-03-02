@@ -2,10 +2,26 @@
     "tasks": [
         {
             "timestamp": "2025-03-02 14:35",
-            "description": "CS 171 Assignment",
-            "priority": "High",
-            "category": "School",
-            "due_date": "2025-03-04 21:00",
+            "description": "Kick friend",
+            "priority": "Low",
+            "category": "Personal",
+            "due_date": "2025-03-02 10:00",
+            "status": "Incomplete"
+        },
+        {
+            "timestamp": "2025-03-02 14:35",
+            "description": "Hit friend",
+            "priority": "Low",
+            "category": "Personal",
+            "due_date": "2025-03-02 11:00",
+            "status": "Incomplete"
+        },
+        {
+            "timestamp": "2025-03-02 14:35",
+            "description": "Kick friend",
+            "priority": "Low",
+            "category": "Personal",
+            "due_date": "2025-03-02 12:00",
             "status": "Incomplete"
         }
     ]

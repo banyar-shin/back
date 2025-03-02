@@ -12,6 +12,8 @@ from jsonDB import jsonToDB, dbToJSON
 import json
 import os
 import asyncio
+from bson import ObjectId
+from mongo import client
 
 load_dotenv()
 app = FastAPI()
@@ -83,6 +85,29 @@ async def chat(user_id:str = Form(...), user_input: str = Form(...)):
     response_stream = generate_reply(json.dumps(jsonData))
     return StreamingResponse(response_stream, media_type="text/plain")
     #return StreamingResponse(groqAI.genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week."))
+
+@app.post("/tasks/complete/")
+async def mark_task_complete(user_id: str = Form(...), task_id: str = Form(...)):
+    try:
+        # Connect to MongoDB
+        db = client.get_database("UserData")  # Replace with your actual database name
+        collection = db[user_id]  # Replace with your actual collection name
+        
+        # Convert string ID to MongoDB ObjectId
+        object_id = ObjectId(task_id)
+        
+        # Update the task status directly in MongoDB
+        result = collection.update_one(
+            {"_id": object_id},
+            {"$set": {"status": "Complete"}}
+        )
+        
+        if result.modified_count > 0:
+            return {"success": True, "message": "Task marked as complete"}
+        else:
+            return {"success": False, "message": "Task not found or already marked as complete"}
+    except Exception as e:
+        return {"success": False, "message": f"Error: {str(e)}"}
 
 @app.get("/tasks/")
 async def tasks(user_id: str):

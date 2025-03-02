@@ -45,6 +45,7 @@ def dbToJSON(userID: str):
     jsonObj = {
         "tasks": [
             {
+                "_id": str(task["_id"]),
                 "timestamp": task["timestamp"],
                 "description": task["description"],
                 "priority": task["priority"],
