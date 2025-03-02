@@ -1,0 +1,36 @@
+{
+    "tasks": [
+        {
+            "timestamp": "2025-03-02 14:35",
+            "description": "Buy Tomatoes",
+            "priority": "Medium",
+            "category": "Groceries",
+            "due_date": "2025-03-03 09:00",
+            "status": "Incomplete"
+        },
+        {
+            "timestamp": "2025-03-02 14:35",
+            "description": "Buy Potatoes",
+            "priority": "Medium",
+            "category": "Groceries",
+            "due_date": "2025-03-03 09:00",
+            "status": "Incomplete"
+        },
+        {
+            "timestamp": "2025-03-02 14:35",
+            "description": "Buy Apples",
+            "priority": "Medium",
+            "category": "Groceries",
+            "due_date": "2025-03-03 09:00",
+            "status": "Incomplete"
+        },
+        {
+            "timestamp": "2025-03-02 14:35",
+            "description": "Buy Onions",
+            "priority": "Medium",
+            "category": "Groceries",
+            "due_date": "2025-03-03 09:00",
+            "status": "Incomplete"
+        }
+    ]
+}
