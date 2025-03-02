@@ -6,8 +6,9 @@ from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from pydantic import BaseModel
 import speechGroq
-from groqAI import genJSON, generate_reply#, add_to_database 
-
+from groqAI import genJSON, generate_reply
+from jsonDB import jsonToDB, dbToJSON
+import json 
 load_dotenv()
 app = FastAPI()
 import os 
@@ -67,8 +68,11 @@ async def fromAudioToText(user_id:str = Form(...), file: UploadFile = File(...))
     os.remove(delFiled)
     #Generate json from transcription_text
     jsonData = genJSON(transcription_text)
+    tempJSONObj: dict 
+    with open(jsonData, "r") as file:
+        tempJSONObj = json.load(file)
     #Store transcription_text and JSON data into MongoDB
-    # add_to_database(user_id, jsonData)
+    jsonToDB(tempJSONObj, user_id)
     #Generates response based on json_data
     response_stream = generate_reply(jsonData)
     return StreamingResponse(response_stream, media_type="text/plain")
@@ -76,7 +80,7 @@ async def fromAudioToText(user_id:str = Form(...), file: UploadFile = File(...))
 @app.get("/chat/")
 async def chat(user_id:str = Form(...), user_input: str = Form(...)):
     jsonData = genJSON(user_input)
-    # add_to_database(user_id, jsonData)
+    extractedJSON = dbToJSON(user_id)
 
     response_stream = generate_reply(jsonData)
     return StreamingResponse(response_stream, media_type="text/plain")
