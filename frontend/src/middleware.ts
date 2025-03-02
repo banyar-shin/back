@@ -1,17 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-import { authMiddleware } from "./middleware/auth-middleware";
+// Define protected routes - dashboard and forum will require authentication
+const isProtectedRoute = createRouteMatcher(['/dashboard(.*)', '/forum(.*)'])
 
-export function middleware(req: NextRequest) {
-  // authMiddleware
-  // const response = authMiddleware(req)
-  // if (response) {
-  //   return response
-  // }
+export default clerkMiddleware(async (auth, req) => {
+  // Log the path for debugging
+  console.log('Middleware running for path:', req.nextUrl.pathname)
 
-  return NextResponse.next();
-}
+  // If the route should be protected, ensure the user is authenticated
+  if (isProtectedRoute(req)) {
+    console.log('Protecting route:', req.nextUrl.pathname)
+    await auth.protect()
+  }
+})
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth/login"],
-};
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+}

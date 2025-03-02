@@ -10,7 +10,6 @@ import { sidebarItems } from "@/navigation/sidebar/sidebar-items";
 
 import SidebarFooterMenu from "./sidebar-footer-menu";
 import SidebarNavigation from "./sidebar-navigation";
-import SidebarProjects from "./sidebar-projects";
 
 const user = {
   name: "shadcn",
@@ -28,30 +27,7 @@ const teams = [
     name: "Acme Corp.",
     logo: AudioWaveform,
     plan: "Startup",
-  },
-  {
-    name: "Evil Corp.",
-    logo: Command,
-    plan: "Free",
-  },
-];
-
-const projects = [
-  {
-    name: "Design Engineering",
-    url: "#",
-    icon: Frame,
-  },
-  {
-    name: "Sales & Marketing",
-    url: "#",
-    icon: PieChart,
-  },
-  {
-    name: "Travel",
-    url: "#",
-    icon: Map,
-  },
+  }
 ];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -62,7 +38,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <SidebarNavigation sidebarItems={sidebarItems} />
-        <SidebarProjects projects={projects} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarFooterMenu user={user} />

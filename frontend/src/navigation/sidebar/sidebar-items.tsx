@@ -19,7 +19,7 @@ export interface NavGroup {
   items: NavMainItem[];
 }
 
-const basePath = "/dashboard";
+const basePath = "/";
 
 export const sidebarItems: NavGroup[] = [
   {
@@ -27,29 +27,30 @@ export const sidebarItems: NavGroup[] = [
     label: "Overview",
     items: [
       {
-        title: "Dashboard",
+        title: "Tasks",
         path: basePath,
         icon: PanelsTopLeft,
         isActive: true,
+      },
+      {
+        title: "Calendar",
+        path: basePath,
+        icon: PanelsTopLeft,
+        isActive: false,
       },
     ],
   },
   {
     id: 2,
-    label: "Apps & Pages",
+    label: "Features",
     items: [
       {
-        title: "Inbox",
-        path: `${basePath}/inbox`,
-        icon: Inbox,
-      },
-      {
-        title: "Invoice",
+        title: "Tasks",
         path: "#",
         icon: Receipt,
         subItems: [
-          { title: "List", path: `${basePath}/invoice/list-preview` },
-          { title: "View", path: `${basePath}/invoice/view` },
+          { title: "List View", path: `${basePath}/invoice/list-preview` },
+          { title: "Calendar View", path: `${basePath}/invoice/view` },
           { title: "Add", path: `${basePath}/invoice/add` },
           { title: "Edit", path: `${basePath}/invoice/edit` },
         ],
@@ -69,17 +70,6 @@ export const sidebarItems: NavGroup[] = [
         title: "Sent",
         path: `${basePath}/sent`,
         icon: Send,
-      },
-    ],
-  },
-  {
-    id: 3,
-    label: "Billing",
-    items: [
-      {
-        title: "Billing",
-        path: `${basePath}/billing`,
-        icon: Receipt,
       },
     ],
   },
