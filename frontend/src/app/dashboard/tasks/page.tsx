@@ -364,24 +364,48 @@ export default function TasksPage() {
   const groupedTasks: Record<string, Task[]> = {};
   const completedTasks: Task[] = [];
 
-  filteredTasks.forEach(task => {
-    // If task is complete and we're showing completed tasks, add to completed section
+  // First, sort tasks by due date
+  const sortedByDueDate = [...filteredTasks].sort((a, b) => {
+    const dateA = parseDate(a.due_date).getTime();
+    const dateB = parseDate(b.due_date).getTime();
+    return dateA - dateB;
+  });
+
+  // Then group them
+  sortedByDueDate.forEach(task => {
+    // If task is complete, add to completed section
     if (task.status === "Complete") {
       completedTasks.push(task);
       return;
     }
 
-    // Otherwise group by due date as before
+    // Get just the date part of the due date (without time)
     const dueDate = format(parseDate(task.due_date), 'yyyy-MM-dd');
+
+    // Initialize the array if it doesn't exist
     if (!groupedTasks[dueDate]) {
       groupedTasks[dueDate] = [];
     }
+
+    // Add task to its date group
     groupedTasks[dueDate].push(task);
   });
 
-  // Get due date keys and sort them
+  // Sort tasks within each group by due date and time
+  Object.keys(groupedTasks).forEach(dateKey => {
+    groupedTasks[dateKey].sort((a, b) => {
+      return parseDate(a.due_date).getTime() - parseDate(b.due_date).getTime();
+    });
+  });
+
+  // Get due date keys and sort them chronologically
   const dueDateKeys = Object.keys(groupedTasks).sort((a, b) =>
-    new Date(a).getTime() - new Date(b).getTime()
+    parseDate(a).getTime() - parseDate(b).getTime()
+  );
+
+  // Sort completed tasks by due date
+  completedTasks.sort((a, b) =>
+    parseDate(a.due_date).getTime() - parseDate(b.due_date).getTime()
   );
 
   return (
@@ -507,7 +531,7 @@ export default function TasksPage() {
           <div key={dateKey} className="space-y-4">
             <h3 className="text-xl font-semibold flex items-center gap-2">
               <Clock className="h-5 w-5" />
-              {format(new Date(dateKey), 'MMMM d, yyyy')}
+              {format(parseDate(dateKey), 'MMMM d, yyyy')}
             </h3>
 
             <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
