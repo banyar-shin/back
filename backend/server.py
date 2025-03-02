@@ -150,11 +150,17 @@ async def test():
 # }"""))
 
 if __name__ == "__main__":
-    # Enable hot reload and bind to all interfaces (0.0.0.0)
+    # Check if running in development or production
+    is_dev = os.environ.get('ENVIRONMENT', 'development') == 'development'
+    
+    # Get port from environment variable for production (Render sets this)
+    port = int(os.environ.get('PORT', 5000))
+    
+    # Run with appropriate settings based on environment
     uvicorn.run(
         "server:app", 
-        host="0.0.0.0",  # Changed from 127.0.0.1 to allow external connections
-        port=5000, 
-        reload=True, 
-        reload_dirs=["./"]
+        host="0.0.0.0",
+        port=port,
+        reload=is_dev,  # Only use hot reload in development
+        reload_dirs=["./"] if is_dev else None
     )
