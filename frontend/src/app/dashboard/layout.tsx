@@ -31,7 +31,7 @@ export default function Layout({ children }: LayoutProps) {
               <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="/dashboard">Welcome!</BreadcrumbLink>
+                    <BreadcrumbLink href="/dashboard">Home</BreadcrumbLink>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>

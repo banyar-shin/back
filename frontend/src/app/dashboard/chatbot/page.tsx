@@ -26,10 +26,13 @@ export default function ChatbotPage() {
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom of messages
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const sendMessage = async () => {
@@ -123,7 +126,7 @@ export default function ChatbotPage() {
   }
 
   return (
-    <div className="flex flex-col h-full p-6">
+    <div className="flex flex-col h-[calc(100vh-4rem)] p-6">
       <div className="flex-col items-center justify-between space-y-2 md:flex md:flex-row mb-6">
         <div className="w-full text-center md:text-left">
           <h2 className="text-3xl font-bold tracking-tight flex items-center gap-2 justify-center md:justify-start">
@@ -138,8 +141,8 @@ export default function ChatbotPage() {
         </div>
       </div>
 
-      <Card className="flex-1 flex flex-col h-[calc(100vh-12rem)]">
-        <CardHeader className="border-b">
+      <Card className="flex-1 flex flex-col min-h-0">
+        <CardHeader className="border-b shrink-0">
           <CardTitle className="flex items-center gap-2">
             <Bot className="h-5 w-5" />
             AI Assistant
@@ -148,33 +151,38 @@ export default function ChatbotPage() {
             Chat with our AI assistant to help with your tasks
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex-1 flex flex-col p-0">
-          <div className="flex-1 overflow-auto p-4 space-y-4">
-            {messages.length ? (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`inline-block max-w-[85%] px-4 py-2 rounded-lg ${msg.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                      }`}
-                  >
-                    <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground">
+        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+          <div
+            ref={messagesContainerRef}
+            className="flex-1 overflow-auto p-4 flex flex-col"
+          >
+            {messages.length === 0 ? (
+              <div className="flex-1 flex items-center justify-center text-muted-foreground">
                 <p>No messages yet. Start a conversation!</p>
               </div>
+            ) : (
+              <div className="mt-auto space-y-4">
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    <div
+                      className={`inline-block max-w-[85%] px-4 py-2 rounded-lg ${msg.role === 'user'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                        }`}
+                    >
+                      <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
             )}
-            <div ref={messagesEndRef} />
           </div>
 
-          <div className="border-t p-4 mt-auto">
+          <div className="border-t p-4 mt-auto shrink-0">
             <div className="flex space-x-2">
               <Input
                 value={message}

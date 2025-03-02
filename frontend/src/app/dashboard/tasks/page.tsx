@@ -5,8 +5,16 @@ import { format, parseISO } from "date-fns";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, CheckSquare, Clock, AlertTriangle } from "lucide-react";
+import { CheckCircle, CheckSquare, Clock, AlertTriangle, Filter, X } from "lucide-react";
 import { useUser } from '@clerk/clerk-react';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Define the Task interface
 interface Task {
@@ -118,6 +126,10 @@ export default function TasksPage() {
   const [loading, setLoading] = useState(true);
   const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
   const [hideCompleted, setHideCompleted] = useState(false);
+
+  // Add filter states
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedPriorities, setSelectedPriorities] = useState<string[]>([]);
 
   useEffect(() => {
     // Only fetch tasks when user is loaded
@@ -279,6 +291,34 @@ export default function TasksPage() {
     return tasks.findIndex(t => t._id === task._id);
   };
 
+  // Get unique categories and priorities from tasks
+  const uniqueCategories = Array.from(new Set(tasks.map(task => task.category)));
+  const priorities = ["High", "Medium", "Low"];
+
+  // Toggle category selection
+  const toggleCategory = (category: string) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
+
+  // Toggle priority selection
+  const togglePriority = (priority: string) => {
+    setSelectedPriorities(prev =>
+      prev.includes(priority)
+        ? prev.filter(p => p !== priority)
+        : [...prev, priority]
+    );
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSelectedCategories([]);
+    setSelectedPriorities([]);
+  };
+
   // Sort tasks by status (incomplete first) and then by due date
   const sortedTasks = [...tasks].sort((a, b) => {
     // First sort by status (incomplete first)
@@ -289,10 +329,11 @@ export default function TasksPage() {
     return parseDate(a.due_date).getTime() - parseDate(b.due_date).getTime();
   });
 
-  // Filter out completed tasks if hideCompleted is true
-  const filteredTasks = hideCompleted
-    ? sortedTasks.filter(task => task.status === "Incomplete")
-    : sortedTasks;
+  // Apply all filters
+  const filteredTasks = sortedTasks
+    .filter(task => hideCompleted ? task.status === "Incomplete" : true)
+    .filter(task => selectedCategories.length > 0 ? selectedCategories.includes(task.category) : true)
+    .filter(task => selectedPriorities.length > 0 ? selectedPriorities.includes(task.priority) : true);
 
   // Group tasks by due date
   const groupedTasks: Record<string, Task[]> = {};
@@ -334,10 +375,105 @@ export default function TasksPage() {
           >
             {hideCompleted ? 'Show Completed' : 'Hide Completed'}
           </Button>
+
           <Button variant="outline" onClick={fetchTasks} disabled={loading}>
             {loading ? 'Refreshing...' : 'Refresh'}
           </Button>
-          <Button>Add New Task</Button>
+        </div>
+      </div>
+
+      {/* Filter Section */}
+      <div className="bg-muted/30 rounded-lg p-4 border">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-lg font-medium flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filter Tasks
+          </h3>
+          {(selectedCategories.length > 0 || selectedPriorities.length > 0) && (
+            <Button variant="ghost" size="sm" onClick={clearFilters} className="flex items-center gap-2">
+              <X className="h-4 w-4" />
+              Clear All Filters
+            </Button>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          {/* Category Filter */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                Category
+                {selectedCategories.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">{selectedCategories.length}</Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuLabel>Filter by Category</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {uniqueCategories.map((category) => (
+                <DropdownMenuCheckboxItem
+                  key={category}
+                  checked={selectedCategories.includes(category)}
+                  onCheckedChange={() => toggleCategory(category)}
+                >
+                  {category}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Priority Filter */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="flex items-center gap-2">
+                Priority
+                {selectedPriorities.length > 0 && (
+                  <Badge variant="secondary" className="ml-1">{selectedPriorities.length}</Badge>
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <DropdownMenuLabel>Filter by Priority</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {priorities.map((priority) => (
+                <DropdownMenuCheckboxItem
+                  key={priority}
+                  checked={selectedPriorities.includes(priority)}
+                  onCheckedChange={() => togglePriority(priority)}
+                >
+                  {priority}
+                </DropdownMenuCheckboxItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Active Filters Display */}
+          {(selectedCategories.length > 0 || selectedPriorities.length > 0) && (
+            <div className="flex items-center gap-2 ml-2">
+              <span className="text-sm text-muted-foreground">Active filters:</span>
+              <div className="flex flex-wrap gap-1">
+                {selectedCategories.map(category => (
+                  <Badge key={`cat-${category}`} variant="outline" className="flex items-center gap-1">
+                    {category}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => toggleCategory(category)}
+                    />
+                  </Badge>
+                ))}
+                {selectedPriorities.map(priority => (
+                  <Badge key={`pri-${priority}`} variant="outline" className="flex items-center gap-1">
+                    {priority}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => togglePriority(priority)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

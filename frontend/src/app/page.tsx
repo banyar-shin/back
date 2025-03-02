@@ -33,7 +33,7 @@ export default function Home() {
           <SignedIn>
             <Link href="/dashboard">
               <Button variant="ghost" size="sm" className="mr-2">
-                Welcome!
+                Home
               </Button>
             </Link>
             <UserButton afterSignOutUrl="/" />

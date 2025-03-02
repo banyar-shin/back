@@ -1,4 +1,4 @@
-import { LucideIcon, CheckSquare, MessageSquare, LayoutDashboard } from "lucide-react";
+import { LucideIcon, CheckSquare, MessageSquare, Home } from "lucide-react";
 
 export interface NavSubItem {
   title: string;
@@ -24,9 +24,9 @@ export const sidebarItems: NavGroup[] = [
     label: "Features",
     items: [
       {
-        title: "Welcome!",
+        title: "Home",
         path: "/dashboard",
-        icon: LayoutDashboard,
+        icon: Home,
       },
       {
         title: "Tasks",
