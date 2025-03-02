@@ -1,7 +1,7 @@
 import os
 from groq import Groq
 
-def genJSON(task):
+def genJSON(task: str):
     client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
     stream = client.chat.completions.create(
@@ -14,12 +14,12 @@ def genJSON(task):
             # how it should behave throughout the conversation.
             {
                 "role": "system",
-                "content": "Take the user input and format a structured plan to complete their task in time for their due date. Structure it in a .json format and only return this .json content"
+                "content": "Take the user input and format a structured plan to complete their task in time for their due date. Structure it in a .json format detailing what should be done on what day and only return this .json content"
             },
             # Set a user message for the assistant to respond to.
             {
                 "role": "user",
-                "content": "I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week.",
+                "content": task,
             }
         ],
 
@@ -55,4 +55,4 @@ def genJSON(task):
 
     # Print the incremental deltas returned by the LLM.
     for chunk in stream:
-        print(chunk.choices[0].delta.content, end="")
+        yield chunk.choices[0].delta.content or ""

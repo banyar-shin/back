@@ -1,4 +1,5 @@
 import uvicorn
+import groqAI
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
@@ -16,9 +17,14 @@ app.add_middleware(
     allow_headers=["*"],  # Allows all headers
 )
 
+
 @app.get("/")
 async def root():
     return "Hello World"
+
+@app.get("/chat")
+async def root():
+    return StreamingResponse(groqAI.genJSON("I have a project due next Friday (today is Saturday) where I need to create a chatbot that can help me plan out my schedule and keep me accountable for my work as I continue through the week."))
 
 if __name__ == "__main__":
     # Enable hot reload
