@@ -3,3 +3,4 @@ uvicorn
 groq
 pymongo
 python-dotenv
+python-multipart
