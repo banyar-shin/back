@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js + TypeScript + Shadcn UI Admin Dashboard
+A modern admin dashboard template using Next.js 14 with App Routing, TypeScript, and Shadcn UI.
+
+<img src="https://github.com/arhamkhnz/next-shadcn-admin-dashboard/blob/main/media/dashboard-lg.png?version=2" alt="Dashboard Screenshot" width="100%">
+
+## Project Context
+
+This admin dashboard template is being built for a SaaS platform, providing flexibility and customization for specific use case.
+
+Feel free to contribute to this project by submitting issues or pull requests.
+
+## Features & Overview
+
+**Features:**
+- [x] Zod for Schema Validation
+- [x] React Query for Data Fetching
+- [x] ESLint for Code Quality
+- [x] Prettier for Code Formatting
+- [x] Tailwind CSS for Styling
+- [x] React Hook Form for Forms
+- [x] Custom Script to Get All Available Routes and Save in a File
+- [ ] Auth.js for Authentication
+- [ ] Tanstack Tables for Data Display
+
+**Overview:**
+- [x] Responsive Design
+- [x] Role-Based Access Control (RBAC) with Configurable UI for Each User
+- [x] Multi-Tenant Support
 
 ## Getting Started
 
-First, run the development server:
+To set up and run this admin dashboard locally, follow these steps:
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. ```git clone https://github.com/arhamkhnz/next-shadcn-admin-dashboard.git```
+2. ```npm install```
+3. ```npm run dev```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+You'll be able to access the project on [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
